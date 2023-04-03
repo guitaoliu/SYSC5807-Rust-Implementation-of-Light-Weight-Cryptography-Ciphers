@@ -1,0 +1,34 @@
+[package]
+name = "benchmarks"
+version = "0.1.0"
+edition = "2021"
+
+
+[dependencies]
+aes-gcm = "0.10.1"
+criterion = "0.4.0"
+rand = "0.8.5"
+acorn = { path = "../acorn" }
+ascon = { path = "../ascon" }
+xoodyak = { path = "../xoodyak" }
+
+[[bench]]
+name = "acorn"
+path = "src/acorn.rs"
+harness = false
+
+[[bench]]
+name = "ascon"
+path = "src/ascon.rs"
+harness = false
+
+
+[[bench]]
+name = "xoodyak"
+path = "src/xoodyak.rs"
+harness = false
+
+[[bench]]
+name = "aes-gcm"
+path = "src/aes_gcm.rs"
+harness = false
