@@ -1,3 +1,5 @@
+use crate::ONES;
+
 #[derive(Clone, Copy, Debug, Default)]
 pub struct State {
     s0: u64,
@@ -21,8 +23,6 @@ pub fn u32_from_be_bytes(input: &[u8]) -> u32 {
     // Soundness: function is always called with slices of the correct size
     u32::from_be_bytes(input.try_into().unwrap())
 }
-
-const ONES: u32 = 0xffff_ffff;
 
 impl State {
     fn update8(&mut self, m: u32, ca: u32, cb: u32) -> u32 {
@@ -99,12 +99,10 @@ impl State {
         for i in 0..4 {
             self.update32(key[i], ONES, ONES);
         }
-        // Loop over iv and apply update8
         for i in 0..iv.len() {
             self.update8(iv[i] as u32, ONES, ONES);
         }
         self.update32(key[0] ^ 0x01, ONES, ONES);
-        // Iterate from 32 to 1535, in step of 32
         for i in (32..15636).step_by(32) {
             self.update32(key[i % 128 / 32], ONES, ONES);
         }
@@ -144,6 +142,7 @@ impl State {
                 last_block[i] = cx ^ ks;
             }
         }
+        self.pad(0);
     }
 
     pub fn finalize(&mut self, tag: &mut [u8; 16]) {

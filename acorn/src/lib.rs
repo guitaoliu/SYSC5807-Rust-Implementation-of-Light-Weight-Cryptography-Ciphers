@@ -2,6 +2,8 @@ use acorn_core::u32_from_be_bytes;
 
 mod acorn_core;
 
+const ONES: u32 = 0xffff_ffff;
+
 pub struct AcornHead {
     key: [u32; 4],
 }
@@ -40,7 +42,7 @@ impl AcornHead {
         let mut state = acorn_core::State::default();
         state.init(&self.key, nonce);
         state.process_associated_data(ad);
-        state.crypt(ct, 0);
+        state.crypt(ct, ONES);
 
         let mut tag = [0u8; 16];
         state.finalize(&mut tag);
@@ -71,13 +73,14 @@ mod test {
     fn acorn_128() {
         let acorn = AcornHead::new(&KEY);
 
-        let pt = b"Hello, world!";
+        let mut pt = [0u8; 16];
         let ad = b"";
 
-        let tag = acorn.encrypt(&mut pt.to_vec(), ad, &NONCE);
+        let tag = acorn.encrypt(&mut pt, ad, &NONCE);
 
-        let mut ct = pt.to_vec();
+        let mut ct = pt;
 
         assert!(acorn.decrypt(&mut ct, ad, &NONCE, &tag).is_ok());
+        assert_eq!([0u8; 16], ct);
     }
 }
